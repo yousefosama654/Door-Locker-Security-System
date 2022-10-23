@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;Door_Locker_Security_System&apos; to &apos;HMI_ECU&apos;" description="Rename resource &apos;Door_Locker_Security_System&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="/Door_Locker_Security_System" name="HMI_ECU" stamp="1666548725112" updateReferences="true"/>
+</session>
