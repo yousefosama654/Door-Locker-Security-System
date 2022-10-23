@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?scdStore version="2"?><scannerInfo id="org.eclipse.cdt.make.core.discoveredScannerInfo">
-    <instance id="de.innot.avreclipse.configuration.app.debug.950832892;de.innot.avreclipse.configuration.app.debug.950832892.;de.innot.avreclipse.tool.compiler.winavr.app.debug.661443785;de.innot.avreclipse.compiler.winavr.input.609289713">
+    <instance id="de.innot.avreclipse.configuration.app.debug.898899696;de.innot.avreclipse.configuration.app.debug.898899696.;de.innot.avreclipse.tool.compiler.winavr.app.debug.2083744643;de.innot.avreclipse.compiler.winavr.input.1119347435">
         <collector id="org.eclipse.cdt.make.core.PerProjectSICollector">
             <includePath path="c:\winavr-20100110\bin\../lib/gcc/avr/4.3.3/include"/>
             <includePath path="c:\winavr-20100110\bin\../lib/gcc/avr/4.3.3/include-fixed"/>
@@ -123,9 +123,11 @@
             <definedSymbol symbol="__AVR_HAVE_JMP_CALL__=1"/>
             <definedSymbol symbol="__AVR_2_BYTE_PC__=1"/>
             <definedSymbol symbol="F_CPU=1000000UL"/>
+            <definedSymbol symbol="F_CPU=8000000UL"/>
+            <definedSymbol symbol="__AVR_ATmega32__=1"/>
         </collector>
     </instance>
-    <instance id="de.innot.avreclipse.configuration.app.release.390221773;de.innot.avreclipse.configuration.app.release.390221773.;de.innot.avreclipse.tool.compiler.winavr.app.release.1120966412;de.innot.avreclipse.compiler.winavr.input.1002944070">
+    <instance id="de.innot.avreclipse.configuration.app.release.770676363;de.innot.avreclipse.configuration.app.release.770676363.;de.innot.avreclipse.tool.compiler.winavr.app.release.1772173583;de.innot.avreclipse.compiler.winavr.input.1497089065">
         <collector id="org.eclipse.cdt.make.core.PerProjectSICollector">
             <includePath path="c:\winavr-20100110\bin\../lib/gcc/avr/4.3.3/include"/>
             <includePath path="c:\winavr-20100110\bin\../lib/gcc/avr/4.3.3/include-fixed"/>
