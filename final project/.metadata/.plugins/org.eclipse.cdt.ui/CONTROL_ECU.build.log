@@ -1,4 +1,4 @@
-21:24:28 **** Incremental Build of configuration Debug for project CONTROL_ECU ****
+21:37:00 **** Incremental Build of configuration Debug for project CONTROL_ECU ****
 make all 
 Building file: ../MCAL/gpio.c
 Invoking: AVR Compiler
@@ -83,5 +83,5 @@ Data:        301 bytes (14.7% Full)
 Finished building: sizedummy
  
 
-21:24:30 Build Finished. 0 errors, 3 warnings. (took 1s.319ms)
+21:37:02 Build Finished. 0 errors, 3 warnings. (took 1s.944ms)
 

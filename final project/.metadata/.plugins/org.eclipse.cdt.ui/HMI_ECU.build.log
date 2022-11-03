@@ -1,4 +1,4 @@
-21:24:23 **** Incremental Build of configuration Debug for project HMI_ECU ****
+21:37:02 **** Incremental Build of configuration Debug for project HMI_ECU ****
 make all 
 Invoking: Print Size
 avr-size --format=avr --mcu=atmega32 HMI_ECU.elf
@@ -16,5 +16,5 @@ Data:        222 bytes (10.8% Full)
 Finished building: sizedummy
  
 
-21:24:23 Build Finished. 0 errors, 0 warnings. (took 152ms)
+21:37:02 Build Finished. 0 errors, 0 warnings. (took 268ms)
 
