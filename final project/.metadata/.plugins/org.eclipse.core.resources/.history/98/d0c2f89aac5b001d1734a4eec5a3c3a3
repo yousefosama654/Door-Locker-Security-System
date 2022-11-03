@@ -1,0 +1,49 @@
+/*
+ ============================================================================
+ *  dcmotor.c
+ *  Date: OCT 3, 2022
+ *  Author: Yousef_Osama
+ *  Description: The Source File of DcMotor Driver
+ ============================================================================
+ */
+#include"INC/dcmotor.h"
+#include"timer0.h"
+#include"../CONFIG//common_macros.h"
+/*
+ * Description :
+ * setup the direction for the two
+ * motor pins through the GPIO driver.
+ * Stop at the DC-Motor at the beginning through the GPIO driver.
+ */
+void DcMotor_Init(void) {
+	GPIO_setupPinDirection(DC_MOTOR_IN1_PORT_ID, DC_MOTOR_IN1_PIN_ID,
+			PIN_OUTPUT);
+	GPIO_setupPinDirection(DC_MOTOR_IN2_PORT_ID, DC_MOTOR_IN2_PIN_ID,
+			PIN_OUTPUT);
+	DcMotor_Rotate(STOP);
+}
+/*
+ * Description :
+ * rotate the DC Motor CW/ or A-CW or
+ * stop the motor based on the state input state value.
+ * Send the required duty cycle to the PWM driver based on the
+ * required speed value.
+ */
+void DcMotor_Rotate(DC_MOTOR_State state) {
+	switch (state) {
+	case STOP:
+		GPIO_writePin(DC_MOTOR_IN1_PORT_ID, DC_MOTOR_IN1_PIN_ID, LOGIC_LOW);
+		GPIO_writePin(DC_MOTOR_IN2_PORT_ID, DC_MOTOR_IN2_PIN_ID, LOGIC_LOW);
+		break;
+	case CW:
+		GPIO_writePin(DC_MOTOR_IN1_PORT_ID, DC_MOTOR_IN1_PIN_ID, LOGIC_LOW);
+		GPIO_writePin(DC_MOTOR_IN2_PORT_ID, DC_MOTOR_IN2_PIN_ID, LOGIC_HIGH);
+		break;
+	case ACW:
+		GPIO_writePin(DC_MOTOR_IN1_PORT_ID, DC_MOTOR_IN1_PIN_ID, LOGIC_HIGH);
+		GPIO_writePin(DC_MOTOR_IN2_PORT_ID, DC_MOTOR_IN2_PIN_ID, LOGIC_LOW);
+		break;
+	}
+	Timer0_PWM_Start(99);
+}
+

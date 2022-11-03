@@ -1,1 +1,3 @@
 1667499921172	Rename resource 'CONTROL_ECU.h'
+1667502637338	Move 'common_macros.h' to 'CONTROL_ECU'
+1667502639964	Move 'std_types.h' to 'CONTROL_ECU'
