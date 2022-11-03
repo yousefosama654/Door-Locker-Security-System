@@ -1,0 +1,156 @@
+#include "Utilities.h"
+
+uint8 errorTrial = 0;
+volatile int TIMER1_g_ticks = 0;
+
+void TASK_mainInit(void) {
+	sei();
+	USART_ConfigType USART_config = { DISABLED_PARITY, BIT_1_STOP_SELECT, 8,
+			9600 };
+	TWI_Config TWI_config = { TWI_F_CPU_CLOCK, 1, 2 };
+	Timer0_Config Timer0_config = { TIMER0_FAST_PWM_MODE,
+			TIMER0_NON_INVERTING_MODE, TIMER0_F_CPU_CLOCK_8 };
+	TIMER1_setCallback(Callback);
+	Timer1_ConfigType Timer1_configuration =
+			{ 0, 8000, F_CPU_1024, Compare_Mode };
+	TIMER1_init_Compare(&Timer1_configuration);
+	USART_init(&USART_config);
+	TWI_init(&TWI_config);
+	Timer0_init(&Timer0_config);
+	DcMotor_Init();
+	BUZZER_init();
+}
+void TASK_createNewPass(void) {
+	// get the first password
+	for (int i = 0; i < PassLength; i++) {
+		CONTROL_ECU_Password_1[i] = USART_recieveByte();
+		_delay_ms(UsartDelay);
+	}
+	// get the second password
+	for (int i = 0; i < PassLength; i++) {
+		CONTROL_ECU_Password_2[i] = USART_recieveByte();
+		_delay_ms(UsartDelay);
+	}
+	flag = 1;
+// check the equality of the second and the first passwords
+	for (int i = 0; i < PassLength; i++) {
+		if (CONTROL_ECU_Password_1[i] != CONTROL_ECU_Password_2[i]) {
+			flag = 0;
+			break;
+		}
+	}
+	USART_sendByte(flag);
+	if (flag == 1) {
+		TASK_saveNewPassEEPROM();
+	} else {
+		TASK_createNewPass();
+	}
+}
+/*
+ * Description :
+ * Function responsible for Saving the Password in the eeprom starting from location 0x0311
+ */
+void TASK_saveNewPassEEPROM(void) {
+	eeprom_index = 0x0311;
+	for (int i = 0; i < PassLength; i++) {
+		uint8 key = CONTROL_ECU_Password_2[i];
+		EEPROM_writeByte(eeprom_index, key);
+		_delay_ms(EEPROMDelay);
+		eeprom_index++;
+	}
+	TASK_TakeOptions();
+}
+/*
+ * Description :
+ * Function responsible for executing the option of the user.
+ * 1-open the door.
+ * 2-change the password.
+ */
+void TASK_TakeOptions(void) {
+	signInput = USART_recieveByte();
+	if (signInput == '+') {
+		TASK_openDoor();
+	} else {
+		TASK_changePass();
+	}
+}
+/*
+ * Description :
+ * Helper Function responsible for checking the sent password to the given in the eeprom.
+ */
+void TASK_checkPass() {
+	uint8 CONTROL_ECU_Password[PassLength];
+	uint8 val;
+	flag = 1;
+	eeprom_index = 0x0311;
+	for (int i = 0; i < PassLength; i++) {
+		CONTROL_ECU_Password[i] = USART_recieveByte();
+		_delay_ms(50);
+	}
+	for (int i = 0; i < PassLength; i++) {
+		EEPROM_readByte(eeprom_index, &val);
+		_delay_ms(EEPROMDelay);
+		eeprom_index++;
+		if (val != CONTROL_ECU_Password[i]) {
+			flag = 0;
+			break;
+		}
+	}
+}
+/*
+ * Description :
+ * Function responsible for door management .
+ */
+void TASK_openDoor(void) {
+	TASK_checkPass();
+	USART_sendByte(flag);
+	if (flag == 1) {
+		TASK_turnOnMotor();
+	} else if (flag == 0 && errorTrial < 2) {
+		errorTrial++;
+		TASK_openDoor();
+	} else {
+		TASK_turnOnBuzzer();
+		errorTrial = 0;
+	}
+}
+void Callback(void) {
+	TIMER1_g_ticks++;
+}
+void TASK_turnOnBuzzer(void) {
+	TIMER1_g_ticks = 0;
+	BUZZER_on();
+	while (TIMER1_g_ticks < DangerTime)
+		;
+	BUZZER_off();
+}
+void TASK_turnOnMotor(void) {
+	TIMER1_g_ticks = 0;
+	DcMotor_Rotate(CW);
+	while (TIMER1_g_ticks < OpenDoorTime)
+		;
+	DcMotor_Rotate(STOP);
+	while (TIMER1_g_ticks < OpenDoorTime + HoldDoorTime)
+		;
+	DcMotor_Rotate(ACW);
+	while (TIMER1_g_ticks < OpenDoorTime + HoldDoorTime + CloseDoorTime)
+		;
+	DcMotor_Rotate(STOP);
+}
+/*
+ * Description :
+ * Function responsible for changing password management .
+ */
+void TASK_changePass() {
+	TASK_checkPass();
+	USART_sendByte(flag);
+	if (flag == 1) {
+		TASK_createNewPass();
+	} else if (flag == 0 && errorTrial < 2) {
+		errorTrial++;
+		TASK_changePass();
+	} else {
+		TASK_turnOnBuzzer();
+		errorTrial = 0;
+	}
+}

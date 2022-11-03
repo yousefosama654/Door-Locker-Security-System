@@ -1,0 +1,142 @@
+#include"lcd.h"
+#include"keypad.h"
+#include"util/delay.h"
+#include"usart.h"
+/* String to store the 5-digits password received from user or EEPROM */
+uint8 HMI_ECU_Password_1[5];
+uint8 HMI_ECU_Password_2[5];
+uint8 flag;
+uint8 i;
+uint8 key;
+void TASK_createNewPass(void);
+void TASK_mainInit(void);
+void TASK_showOptions(void);
+void TASK_showOptions(void);
+void TASK_openDoor(void);
+void TASK_changePass(void);
+int main() {
+	TASK_mainInit();
+	while (1) {
+		TASK_createNewPass();
+		_delay_ms(500);
+	}
+}
+void TASK_mainInit(void) {
+	LCD_init();
+	USART_ConfigType config = { DISABLED_PARITY, BIT_1_STOP_SELECT, 8, 9600 };
+	USART_init(&config);
+}
+void TASK_createNewPass(void) {
+	LCD_displayString("plz enter pass:");
+	LCD_moveCursor(1, 0);
+	i = key = 0;
+	flag = 1;
+	while (i < 5) {
+		key = KEYPAD_getPressedKey();
+		if (key >= 0 && key <= 9) {
+			LCD_displayCharacter('*');
+			HMI_ECU_Password_1[i] = key;
+			_delay_ms(500);
+			i++;
+		}
+	}
+	while (KEYPAD_getPressedKey() != 13)
+		;
+	i = 0;
+	LCD_clearScreen();
+	LCD_displayString("plz reenter pass:");
+	LCD_moveCursor(1, 0);
+	while (i < 5) {
+		key = KEYPAD_getPressedKey();
+		if (key >= 0 && key <= 9) {
+			LCD_displayCharacter('*');
+			HMI_ECU_Password_2[i] = key;
+			_delay_ms(500);
+			i++;
+		}
+	}
+	while (KEYPAD_getPressedKey() != 13)
+		;
+	LCD_clearScreen();
+	for (int i = 0; i < 5; i++) {
+		USART_sendByte(HMI_ECU_Password_1[i]);
+		_delay_ms(50);
+	}
+	for (int i = 0; i < 5; i++) {
+		USART_sendByte(HMI_ECU_Password_2[i]);
+		_delay_ms(50);
+	}
+	flag = USART_recieveByte();
+	if (flag == 1) {
+		LCD_displayString("target acquired");
+		_delay_ms(1000);
+		LCD_clearScreen();
+		TASK_showOptions();
+	} else {
+		LCD_displayString("Not Matching");
+		_delay_ms(1000);
+		LCD_clearScreen();
+		TASK_mainInit();
+	}
+}
+void TASK_showOptions(void) {
+	LCD_moveCursor(0, 0);
+	LCD_displayString("+ : Open Door");
+	LCD_moveCursor(1, 0);
+	LCD_displayString("- : Change Pass");
+	key = KEYPAD_getPressedKey();
+	if (key == '-' || key == '+') {
+		_delay_ms(500);
+		if (key == '-') {
+			TASK_changePass();
+		} else {
+			TASK_openDoor();
+		}
+	} else {
+		LCD_clearScreen();
+		LCD_displayString("Enter Valid Key");
+		_delay_ms(1000);
+		TASK_showOptions();
+	}
+}
+void TASK_openDoor(void) {
+	LCD_clearScreen();
+	LCD_displayString("plz enter pass:");
+	LCD_moveCursor(1, 0);
+	i = key = 0;
+	while (i < 5) {
+		key = KEYPAD_getPressedKey();
+		if (key >= 0 && key <= 9) {
+			LCD_displayCharacter('*');
+			HMI_ECU_Password_1[i] = key;
+			_delay_ms(500);
+			i++;
+		}
+	}
+	while (KEYPAD_getPressedKey() != 13)
+		;
+	i = 0;
+	LCD_clearScreen();
+
+}
+void TASK_changePass(void) {
+}
+//	long arr[5] = { 1, 2, 3, 4, 5 };
+//	long i = 0;
+//	uint8 key = 0;
+//	USART_ConfigType config = { DISABLED_PARITY, BIT_1_STOP_SELECT, 8, 9600 };
+//	USART_init(&config);
+//	LCD_init();
+//	while (1) {
+//		key = KEYPAD_getPressedKey();
+//		LCD_intgerToString(key);
+//		USART_sendByte(arr[i]);
+//		LCD_intgerToString(arr[i]);
+//		_delay_ms(500);
+//		LCD_clearScreen();
+//		i++;
+//		if (i >= 5) {
+//			i = 0;
+//		}
+//		_delay_ms(500);
+//	}

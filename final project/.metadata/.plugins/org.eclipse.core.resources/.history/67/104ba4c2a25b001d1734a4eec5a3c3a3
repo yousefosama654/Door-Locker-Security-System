@@ -1,0 +1,19 @@
+
+
+#ifndef CONTROL_ECU_H_
+#define CONTROL_ECU_H_
+
+#include"buzzer.h"
+#include"usart.h"
+#include"util/delay.h"
+#include"avr/interrupt.h"
+#include"twi.h"
+#include"external_eeprom.h"
+#include"timer0.h"
+#include"timer1.h"
+#include"dcmotor.h"
+
+
+#include""
+
+#endif /* CONTROL_ECU_H_ */

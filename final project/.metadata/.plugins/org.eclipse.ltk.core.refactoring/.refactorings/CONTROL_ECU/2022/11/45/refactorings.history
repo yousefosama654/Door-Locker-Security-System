@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;CONTROL_ECU/CONTROL_ECU.h&apos; to &apos;Utilities.h&apos;" description="Rename resource &apos;CONTROL_ECU.h&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="CONTROL_ECU.h" name="Utilities.h" stamp="1667499921172" updateReferences="true"/>
+</session>

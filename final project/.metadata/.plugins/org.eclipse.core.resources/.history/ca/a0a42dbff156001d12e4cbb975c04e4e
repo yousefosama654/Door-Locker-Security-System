@@ -1,0 +1,51 @@
+#ifndef TIMER1_H_
+#define TIMER1_H_
+
+#include"std_types.h"
+
+/*******************************************************************************
+ *                                Definitions                                  *
+ *******************************************************************************/
+#define TIMER1_MAX_VALUE 65535
+/*******************************************************************************
+ *                         Types Declaration                                   *
+ *******************************************************************************/
+static volatile void (*g_ptr)(void) = NULL_PTR;
+typedef enum {
+	TIMER1_NORMAL_MODE, TIMER1_COMPARE_MODE
+} Timer1_Mode;
+typedef enum {
+	TIMER1_NO_CLOCK,
+	TIMER1_F_CPU_CLOCK,
+	TIMER1_F_CPU_CLOCK_8,
+	TIMER1_F_CPU_CLOCK_64,
+	TIMER1_F_CPU_CLOCK_256,
+	TIMER1_F_CPU_CLOCK_1024
+} Timer1_Clock;
+typedef struct {
+	uint16 initial_value;
+	uint16 compare_value; // it will be used in compare mode only.
+	Timer_Mode timer_mode;
+	Timer_Clock clock;
+} Timer1_Config;
+extern volatile uint8 TIMER1_g_ticks;
+/*******************************************************************************
+ *                      Functions Prototypes                                   *
+ *******************************************************************************/
+/*
+ * Description :
+ * Function responsible for initialize the TIMER_0 driver.
+ */
+void Timer1_init(const Timer1_Config *Config_Ptr);
+/*
+ * Description :
+ *  Setup the compare value based on the required input duty cycle.
+ */
+void Timer1_setCallBack(void (*a_ptr)(void));
+/*
+ * Description :
+ * Function responsible for De_initialize the TIMER_0 driver.
+ */
+void TIMER1_deinit();
+
+#endif /* TIMER1_H_ */

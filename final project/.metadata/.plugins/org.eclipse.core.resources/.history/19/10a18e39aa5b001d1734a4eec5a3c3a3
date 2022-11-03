@@ -1,0 +1,207 @@
+/*
+ ============================================================================
+ *  Utilities.c
+ *  Date: Nov 3, 2022
+ *  Author: Yousef_Osama
+ *  Description: The Source File of Utilities file
+ ============================================================================
+ */
+#include"Utilities.h"
+/*******************************************************************************
+ *                                Definitions                                  *
+ *******************************************************************************/
+uint8 errorTrial = 0;
+volatile int TIMER1_g_ticks = 0;
+/*******************************************************************************
+*                      Functions Definitions                                   *
+*******************************************************************************/
+/*
+ * Description :
+ * Function responsible for Modules initializations .
+ */
+void TASK_mainInit(void) {
+	sei();
+	LCD_init();
+	USART_ConfigType config = { DISABLED_PARITY, BIT_1_STOP_SELECT, 8, 9600 };
+	USART_init(&config);
+	TIMER1_setCallback(Callback);
+	Timer1_ConfigType Timer1_configuration =
+			{ 0, 8000, F_CPU_1024, Compare_Mode };
+	TIMER1_init_Compare(&Timer1_configuration);
+}
+/*
+ * Description :
+ * Function responsible for creating new passwords by user inputs .
+ */
+void TASK_createNewPass(void) {
+	LCD_clearScreen();
+	LCD_displayString("plz enter pass:");
+	LCD_moveCursor(1, 0);
+	i = key = 0;
+	flag = 1;
+	while (i < PassLength) {
+		key = KEYPAD_getPressedKey();
+		if (key >= 0 && key <= 9) {
+			LCD_displayCharacter('*');
+			HMI_ECU_Password_1[i] = key;
+			_delay_ms(KeyDelay);
+			i++;
+		}
+	}
+	while (KEYPAD_getPressedKey() != EnterButton)
+		;
+	i = 0;
+	LCD_clearScreen();
+	LCD_displayString("plz reenter pass:");
+	LCD_moveCursor(1, 0);
+	while (i < PassLength) {
+		key = KEYPAD_getPressedKey();
+		if (key >= 0 && key <= 9) {
+			LCD_displayCharacter('*');
+			HMI_ECU_Password_2[i] = key;
+			_delay_ms(KeyDelay);
+			i++;
+		}
+	}
+	while (KEYPAD_getPressedKey() != EnterButton)
+		;
+	LCD_clearScreen();
+	for (int i = 0; i < PassLength; i++) {
+		USART_sendByte(HMI_ECU_Password_1[i]);
+		_delay_ms(UsartDelay);
+	}
+	for (int i = 0; i < PassLength; i++) {
+		USART_sendByte(HMI_ECU_Password_2[i]);
+		_delay_ms(UsartDelay);
+	}
+	flag = USART_recieveByte();
+	if (flag == 1) {
+		LCD_displayString("Matching...");
+		_delay_ms(NormalDelay);
+	} else {
+		LCD_displayString("Not Matching...");
+		_delay_ms(NormalDelay);
+		TASK_createNewPass();
+	}
+}
+/*
+ * Description :
+ * Function responsible for showing the option of the user.
+ * 1-open the door.
+ * 2-change the password.
+ */
+void TASK_showOptions(void) {
+	LCD_clearScreen();
+	LCD_moveCursor(0, 0);
+	LCD_displayString("+ : Open Door");
+	LCD_moveCursor(1, 0);
+	LCD_displayString("- : Change Pass");
+	key = KEYPAD_getPressedKey();
+	if (key == '-' || key == '+') {
+		USART_sendByte(key);
+		if (key == '-') {
+			TASK_changePass();
+		} else {
+			TASK_openDoor();
+		}
+	} else {
+		LCD_clearScreen();
+		LCD_displayString("Enter Valid Key");
+		_delay_ms(NormalDelay);
+		TASK_showOptions();
+	}
+}
+/*
+ * Description :
+ * Helper Function responsible for checking the sent password to the given in the eeprom.
+ */
+void TASK_checkPass() {
+	LCD_clearScreen();
+	uint8 HMI_ECU_Password[PassLength];
+	LCD_displayString("plz enter pass:");
+	LCD_moveCursor(1, 0);
+	i = key = 0;
+	while (i < PassLength) {
+		key = KEYPAD_getPressedKey();
+		if (key >= 0 && key <= 9) {
+			LCD_displayCharacter('*');
+			HMI_ECU_Password[i] = key;
+			_delay_ms(KeyDelay);
+			i++;
+		}
+	}
+	while (KEYPAD_getPressedKey() != EnterButton)
+		;
+	for (int i = 0; i < PassLength; i++) {
+		USART_sendByte(HMI_ECU_Password[i]);
+		_delay_ms(UsartDelay);
+	}
+}
+/*
+ * Description :
+ * Function responsible for door management .
+ */
+void TASK_openDoor(void) {
+	TASK_checkPass();
+	flag = USART_recieveByte();
+	LCD_clearScreen();
+	if (flag == 1) {
+		TASK_turnOnMotor();
+	} else if (flag == 0 && errorTrial < 2) {
+		errorTrial++;
+		LCD_displayString("Not Correct...");
+		_delay_ms(NormalDelay);
+		TASK_openDoor();
+	} else {
+		TASK_turnOnBuzzer();
+		errorTrial = 0;
+	}
+}
+/*
+ * Description :
+ * Function responsible for changing password management .
+ */
+void TASK_changePass(void) {
+	TASK_checkPass();
+	flag = USART_recieveByte();
+	LCD_clearScreen();
+	if (flag == 1) {
+		LCD_displayString("Correct pass");
+		_delay_ms(NormalDelay);
+		TASK_createNewPass();
+	} else if (flag == 0 && errorTrial < 2) {
+		errorTrial++;
+		LCD_displayString("Not Correct...");
+		_delay_ms(NormalDelay);
+		TASK_changePass();
+	} else {
+		TASK_turnOnBuzzer();
+		errorTrial = 0;
+	}
+}
+
+void Callback(void) {
+	TIMER1_g_ticks++;
+}
+void TASK_turnOnBuzzer(void) {
+	TIMER1_g_ticks = 0;
+	LCD_clearScreen();
+	LCD_displayString("Error !!!");
+	while (TIMER1_g_ticks < DangerTime)
+		;
+}
+void TASK_turnOnMotor(void) {
+	TIMER1_g_ticks = 0;
+	LCD_clearScreen();
+	LCD_displayString("Door Unlocking");
+	while (TIMER1_g_ticks < OpenDoorTime)
+		;
+	LCD_clearScreen();
+	LCD_displayString("Holding...");
+	while (TIMER1_g_ticks < OpenDoorTime + HoldDoorTime)
+		;
+	LCD_clearScreen();
+	LCD_displayString("Door Locking");
+	while (TIMER1_g_ticks < OpenDoorTime + HoldDoorTime + CloseDoorTime)
+		;
+}

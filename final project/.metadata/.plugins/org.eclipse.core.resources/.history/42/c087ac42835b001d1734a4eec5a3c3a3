@@ -1,0 +1,69 @@
+/*
+ ============================================================================
+ *  timer1.h
+ *  Date: Nov 3, 2022
+ *  Author: Yousef_Osama
+ *  Description: The Header File of TIMER_1 Driver
+ ============================================================================
+ */
+#ifndef TIMER1_H_
+#define TIMER1_H_
+#include "std_types.h"
+/****************************************************************
+*                        Definitions                            *
+****************************************************************/
+#define TIMER1_Compare_Mode
+/****************************************************************
+*                        Type Declaration                       *
+****************************************************************/
+// 1- Pre-scaler enum that will specify which clock Timer1 Will Operate
+typedef enum{
+	No_Clock, F_CPU_CLOCK ,F_CPU_8 , F_CPU_64 , F_CPU_256 , F_CPU_1024
+}TIMER1_Prescaler;
+/**********************************************************************/
+// 2- Mode enum that will specify which Mode Timer1 Will Operate
+typedef enum{
+	Normal_Mode , Compare_Mode = 4
+}TIMER1_MODE;
+/**********************************************************************/
+#ifndef TIMER1_Compare_Mode
+typedef struct{
+	uint16 Initial_value; // This member will put initial value for Timer1 to start count
+	TIMER1_Prescaler Prescaler; // This member will specify Pre-scaler which Timer1 will Operate
+	TIMER1_MODE Mode; // This member used to specify Mode of Operation
+}Timer1_ConfigType;
+#else
+typedef struct{
+	uint16 Initial_value; // This member will put initial value for Timer1 to start count
+	uint16 Compare_value; // This member Put value in Compare Register that will make Timer1 Stop and re-timing when reach to it
+	TIMER1_Prescaler Prescaler; // This member will specify Pre-scaler which Timer1 will Operate
+	TIMER1_MODE Mode; // This member used to specify Mode of Operation
+}Timer1_ConfigType;
+#endif
+/*******************************************************************************
+*                      Functions Prototypes                                    *
+*******************************************************************************/
+#ifndef TIMER1_Compare_Mode
+/*
+ * Description :
+ * Function responsible for initialize the TIMER_1 driver in normal mode.
+ */
+void TIMER1_init_Normal(Timer1_ConfigType* Config_ptr);
+#else
+/*
+ * Description :
+ * Function responsible for initialize the TIMER_1 driver in compare mode.
+ */
+void TIMER1_init_Compare(Timer1_ConfigType* Config_ptr);
+#endif
+/*
+ * Description :
+ * Function responsible for De_initialize the TIMER_1 driver.
+ */
+void TIMER1_deInit(void);
+/*
+ * Description :
+ * Setup the callback function in the TIMER_1 driver.
+ */
+void TIMER1_setCallback(void(*a_ptr)(void));
+#endif /* TIMER1_H_ */

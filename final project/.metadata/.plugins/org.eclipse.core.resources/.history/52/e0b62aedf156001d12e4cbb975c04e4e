@@ -1,0 +1,51 @@
+#include"timer1.h"
+#include<avr/io.h>
+#include<avr/interrupt.h>
+volatile uint8 TIMER1_g_ticks = 0;
+/*
+ * Description :
+ * ISR Function responsible for implementation TIMER_1 driver callback on compare mode.
+ */
+ISR(TIMER1_COMPA_vect) {
+	if (g_ptr != NULL_PTR)
+		(*g_ptr)();
+}
+/*
+ * Description :
+ * ISR Function responsible for implementation TIMER_1 driver callback on overflow mode.
+ */
+ISR(TIMER1_OVF_vect) {
+	if (g_ptr != NULL_PTR)
+		(*g_ptr)();
+}
+/*
+ * Description :
+ * Function responsible for initialize the TIMER_1 driver.
+ */
+void Timer1_init(const Timer1_Config *Config_Ptr) {
+	TCNT1 = Config_Ptr->initial_value;
+	OCR1A = Config_Ptr->compare_value;
+	TCCR1B = (TCCR1B & 0xf7) | (Config_Ptr->clock);
+	if (Config_Ptr->timer1_mode == TIMER1_NORMAL_MODE) {
+		TIMSK |= (1 << TOIE1);
+	} else if (Config_Ptr->timer1_mode == TIMER1_COMPARE_MODE) {
+		TCCR1A |= (1 << FOC1A);
+		TCCR1B |= (1 << WGM12);
+		TIMSK |= (1 << OCIE1A);
+	}
+}
+/*
+ * Description :
+ *  Setup the call back function.
+ */
+void Timer1_setCallBack(void (*a_ptr)(void)) {
+	g_ptr = (volatile void*) a_ptr;
+}
+/*
+ * Description :
+ * Function responsible for De_initialize the TIMER_1 driver.
+ */
+void TIMER1_deinit() {
+	TCNT1 = OCR1A = TCCR1B = TCCR1A = TIMSK = 0;
+}
+

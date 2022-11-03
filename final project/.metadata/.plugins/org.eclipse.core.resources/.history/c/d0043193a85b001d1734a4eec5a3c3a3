@@ -1,0 +1,34 @@
+
+
+#ifndef UTILITIES_H_
+#define UTILITIES_H_
+
+
+#include"lcd.h"
+#include"keypad.h"
+#include"util/delay.h"
+#include"usart.h"
+#include"timer1.h"
+#include"avr/interrupt.h"
+
+
+/* String to store the 5-digits password received from user or EEPROM */
+uint8 HMI_ECU_Password_1[5];
+uint8 HMI_ECU_Password_2[5];
+uint8 flag;
+uint8 i;
+uint8 key;
+
+
+
+#define PassLength  5
+#define OpenDoorTime 10
+#define HoldDoorTime 3
+#define CloseDoorTime 10
+#define DangerTime 60
+#define EnterButton 13
+#define NormalDelay 800
+#define KeyDelay    500
+#define UsartDelay  50
+
+#endif /* UTILITIES_H_ */

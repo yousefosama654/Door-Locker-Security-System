@@ -1,0 +1,25 @@
+
+
+#ifndef UTILITIES_H_
+#define UTILITIES_H_
+
+
+
+/* String to store the 5-digits password received from user or EEPROM */
+uint8 HMI_ECU_Password_1[5];
+uint8 HMI_ECU_Password_2[5];
+uint8 flag;
+uint8 i;
+uint8 key;
+
+
+
+#include"lcd.h"
+#include"keypad.h"
+#include"util/delay.h"
+#include"usart.h"
+#include"timer1.h"
+#include"avr/interrupt.h"
+
+
+#endif /* UTILITIES_H_ */
