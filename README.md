@@ -4,7 +4,7 @@ This project is a door locker security system that uses a password to lock and u
 #### Technologies
 ###### This project was created using:
 
-- AVR 
+- Atemga32 
 - Proteus 8 Professional
 - C language
 - I2C
