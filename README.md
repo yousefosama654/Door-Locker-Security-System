@@ -6,7 +6,7 @@ This project is a door locker security system that uses a password to lock and u
 
 - Atemga32 
 - Proteus 8 Professional
-- C language
+- SPI
 - I2C
 - Dc-Motors
 - PWM
@@ -14,7 +14,7 @@ This project is a door locker security system that uses a password to lock and u
 - Buzzer
 - Timers
 - Keypad
-- Lcd
+- LCD
 
 ***Launch***
 To run this project, *you need to*:
